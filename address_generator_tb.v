@@ -1,13 +1,13 @@
 module address_generator_tb;
 	reg clk,reset,preset,en,up_down;
 	wire carry;
-	wire [7:0] address;
+	wire [3:0] address;
 
 	initial begin 
 		$dumpfile("v.vcd");
 		$dumpvars();
 	end
-	address_generator a_g1 (
+	address_generator #(4'd4) a_g1 (
 		.clk(clk),
 		.reset(reset),
 		.preset(preset),
@@ -27,8 +27,10 @@ module address_generator_tb;
 		#15;
 		en = 1;
 		up_down = 1;
-		#500;
+		#1000;
 		up_down = 0;
+		#50;
+		reset = 1;
 		#5000;
 		$finish;
 	end	
