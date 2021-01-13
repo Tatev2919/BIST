@@ -7,8 +7,8 @@ module top #(
 
 wire clk,rst,start;
 reg fail,done;
-wire reset,preset,
-module mem_FSM(
+wire reset,preset,up_down,read,write,data,is_equal;
+mem_FSM mf(
 	.rst(rst),
 	.clk(clk),
 	.start(start),
@@ -18,6 +18,7 @@ module mem_FSM(
 	.preset(preset),
         .en(en),.up_down(up_down),.carry(carry),.read(read),.write(write),.data(data),.is_equal(is_equal)
 );
+
 
 
 endmodule
