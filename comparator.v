@@ -5,6 +5,7 @@ module comparator
 	input [N-1:0] data_mem,
 	output reg is_equal
 );
+
 always @(*) begin 
 	if(data_gen == data_mem)  begin 
 		is_equal = 1'b1;

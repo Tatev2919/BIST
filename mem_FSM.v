@@ -19,8 +19,9 @@ parameter w0 = 3'd1;
 parameter r0 = 3'd2;
 parameter w1 = 3'd3;
 parameter r1 = 3'd4;
-reg [2:0] state ,next_state; 
-always @(posedge clk or negedge rst ) begin 
+reg [2:0] state ,next_state;
+ 
+always @(posedge clk or posedge rst ) begin 
 	if( rst ) begin
 		state <= Idle; 
 	end
@@ -98,24 +99,20 @@ always @(*) begin
 		end
 	endcase
 end
-always @(posedge clk or negedge rst) begin 
+always @(posedge clk or posedge rst) begin 
 	if(rst) begin 
 		fail <= 1'b0;
+		reset <= 1'b0;
+		preset <= 1'b1;
 	end
-	else if (up_down) begin 
+	if (up_down) begin 
 		reset <= carry;
 	end
+	if(!is_equal) begin
+                fail <= 1'b1;
+        end
 	else begin 
 		preset <= carry;
-		if(start) begin 
-			en <= 1'b1;
-		end
-		if(!is_equal) begin 
-			fail <= 1'b1;
-		end
-		else begin 
-			en <= 1'b0;
-		end
 	end
 end
 
