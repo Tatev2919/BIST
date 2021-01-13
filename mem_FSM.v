@@ -1,19 +1,9 @@
 module mem_FSM(
-	input rst,
-	input clk,
-	input start,
-	output reg fail,
-	output reg done,
-	output reg reset,
-	output reg preset,
-	output reg en,
-	output reg up_down,
-	input carry,
-	output reg read,
-	output reg write,
-	output reg data,
-	input is_equal
+	rst,clk,start,fail,done,reset,preset, en,up_down,carry, read,write,data,is_equal
 );
+
+input wire rst,clk,start,is_equal,carry;
+output reg fail,done,reset,preset,en,up_down,read,write,data;
 parameter Idle = 3'b0;
 parameter w0 = 3'd1;
 parameter r0 = 3'd2;
@@ -102,17 +92,28 @@ end
 always @(posedge clk or posedge rst) begin 
 	if(rst) begin 
 		fail <= 1'b0;
-		reset <= 1'b0;
-		preset <= 1'b1;
 	end
-	if (up_down) begin 
-		reset <= carry;
-	end
-	if(!is_equal) begin
+	else if(!is_equal) begin
                 fail <= 1'b1;
         end
-	else begin 
-		preset <= carry;
+end
+
+always @(*) begin 
+	if(rst) begin 
+		reset = 1'b0;
+		preset = 1'b0;
+		en = 1'b0;
+	end
+	else begin
+	        en = ~carry;	
+		if(up_down) begin 
+			reset = carry;
+			preset = 1'b0;
+		end
+		else begin 
+			preset = carry;
+			reset = 1'b0;
+		end
 	end
 end
 
