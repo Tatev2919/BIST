@@ -18,10 +18,12 @@ module mem_FSM_tb;
 		.carry(carry),
 		.is_equal(is_equal)
 	);
+
 	initial begin 
 		$dumpfile("m.vcd");
 		$dumpvars();
 	end
+
 	initial begin 
 		clk = 1'b0;
 		rst = 1'b1;
@@ -33,28 +35,20 @@ module mem_FSM_tb;
 		#25;
 		start = 1'b1;
 		#15 start = 1'b0;
-		#250;
-		carry = 1'b1;
-		#15;
-		carry = 1'b0;
-		#225;
-		carry = 1'b1;
-		#15 carry = 1'b0;
-		start = 1'b1;
-		@(negedge clk ) start = 1'b0;
-		#200;
-		carry = 1'b1;
-		#15;	
-	       	carry = 1'b0;
-		#200;
-		carry = 1'b1;
-		#15 carry = 1'b0;
-		#35;
+		#500;
 		start = 1'b1;
 		@(negedge clk ) start = 1'b0;
 		#500;
 		$finish;
 	end
+	initial fork
+		forever begin
+			#220;
+			carry = 1'b1;
+			#15 carry = 1'b0;
+		end
+	join
+
 	always begin 
 		#20 clk = ~clk; 
 	end

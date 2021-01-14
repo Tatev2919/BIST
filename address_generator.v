@@ -9,6 +9,7 @@ module address_generator
 	output carry,
 	output reg  [ad_w-1:0] address
 );
+
 assign carry = (up_down&&en)?(address==((1<<ad_w)-1))&&((!reset)&&(!preset)):(address==0)&&en&&(!reset)&&(!preset);
 
 always @(posedge clk) begin 
@@ -30,4 +31,5 @@ always @(posedge clk) begin
 		address <= {ad_w-1{1'b0}};
 	end
 end
+
 endmodule

@@ -4,18 +4,25 @@ module mem_FSM(
 
 input wire rst,clk,start,is_equal,carry;
 output reg fail,done,reset,preset,en,up_down,read,write,data;
+
 parameter Idle = 3'b0;
 parameter w0 = 3'd1;
 parameter r0 = 3'd2;
 parameter w1 = 3'd3;
 parameter r1 = 3'd4;
+
 reg [2:0] state ,next_state;
- 
-always @(posedge clk or posedge rst )  
-	if( rst ) 
+reg carry_r;
+always @(posedge clk or posedge rst ) begin  
+	if( rst ) begin 
 		state <= Idle; 
-	else  
+		carry_r <= 1'b0;
+	end
+	else begin  
 		state <= next_state;
+		carry_r <= carry;
+	end
+end
 
 always @(*) begin 
 	case (state) 
@@ -37,7 +44,7 @@ always @(*) begin
 				preset = 1'b0;
 			end
 		w0:
-			if(carry == 1'b1) begin 
+			if(carry_r) begin 
 				next_state = r0;
 				en = 1'b0;
 				preset = 1'b1;
@@ -54,7 +61,7 @@ always @(*) begin
 				preset = 1'b0;
 			end
 		r0:
-			if(carry == 1'b1) begin
+			if(carry_r) begin
 				next_state = w1;
 				en = 1'b0;
 				reset = 1'b1;
@@ -72,7 +79,7 @@ always @(*) begin
 			end
 		w1: 
 			
-			if(carry == 1'b1) begin 
+			if(carry_r) begin 
 				next_state = r1;
 				en = 1'b0;
 				reset = 1'b1;
@@ -90,7 +97,7 @@ always @(*) begin
 			end
 		r1:
 
-			if(carry == 1'b1) begin
+			if(carry_r) begin
 				next_state = Idle;
 				en = 1'b0;
 				reset = 1'b1;
@@ -119,13 +126,14 @@ always @(*) begin
 		end
 	endcase
 end
-always @(posedge clk or posedge rst) begin 
-	if(rst) begin 
+
+always @(posedge clk or posedge rst)  
+	if(rst)  
 		fail <= 1'b0;
-	end
-	else if(!is_equal) begin
-                fail <= 1'b1;
-        end
-end
+	else if(!is_equal) 
+		if(state == r0 || state == r1)
+                	fail <= 1'b1;
+	else 
+		fail <= 1'b0;
 
 endmodule
