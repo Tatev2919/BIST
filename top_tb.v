@@ -21,10 +21,11 @@ module top_tb;
 		rst = 1'b0;
 		#25;
 		start = 1'b1;
-		#15 start = 1'b0;
-		#500;
+		#30 start = 1'b0;
+		#200;
 		start = 1'b1;
-		@(negedge clk ) start = 1'b0;
+		#25;
+		start = 1'b0;
 		#5000;
 		$finish;
 	end

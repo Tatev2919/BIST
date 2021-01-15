@@ -3,7 +3,7 @@ module mem_FSM(
 );
 
 input wire rst,clk,start,is_equal,carry;
-output reg fail,done,reset,preset,en,up_down,read,write,data;
+output reg fail,done,en,up_down,read,write,data,reset,preset;
 
 parameter Idle = 3'b0;
 parameter w0 = 3'd1;
@@ -11,120 +11,118 @@ parameter r0 = 3'd2;
 parameter w1 = 3'd3;
 parameter r1 = 3'd4;
 
-reg [2:0] state ,next_state;
-reg carry_r;
+reg [2:0] state;
+
 always @(posedge clk or posedge rst ) begin  
 	if( rst ) begin 
-		state <= Idle; 
-		carry_r <= 1'b0;
+		state <= Idle;
+		read <= 1'b0;
+		write <= 1'b0;
+		up_down <= 1'b1;
+		data <= 1'b0;
+		done <= 1'b0;
+		en <= 1'b0;
+		reset <= 1'b0;
+		preset <= 1'b0;
 	end
-	else begin  
-		state <= next_state;
-		carry_r <= carry;
+	else begin   
+		case (state) 
+			Idle: 
+				if(start == 1'b1) begin 
+					en <= 1'b0;
+					state <= w0;
+				end
+				else begin 
+					read <= 1'b0;
+					write <= 1'b0;
+					up_down <= 1'b1;
+					data <= 1'b0;
+					done <= 1'b1;
+					en <= 1'b0;
+					reset <= 1'b0;
+					preset <= 1'b0;
+				end
+			w0:
+				if(carry) begin 
+					en <= 1'b0;
+					state <= r0;
+					preset <= carry;
+				end
+				else begin 
+					read  <= 1'b0;
+					write <= 1'b1;
+					up_down <= 1'b1;
+					data <= 1'b0;
+					reset <= 1'b0;
+					preset <= 1'b0;
+					done <= 1'b0;
+					en <= 1'b1;
+
+				end
+			r0:
+				if(carry) begin
+					en <= 1'b0;
+					state <= w1;
+					reset <= carry;
+				end
+				else begin 
+					read <= 1'b1;
+					write <= 1'b0;
+					up_down <= 1'b0;
+					data <= 1'b0;
+					done <= 1'b0;
+					
+					reset <= 1'b0;
+					preset <= 1'b0;
+					en <= 1'b1;
+				end
+			w1: 
+				
+				if(carry) begin 
+					en <= 1'b0;
+					state <= r1;
+					reset <= carry;
+				end
+				else begin 
+					read <= 1'b0;
+					up_down <= 1'b1;
+					write <= 1'b1;
+					data <= 1'b1;
+					done <= 1'b0;
+					reset <= 1'b0;
+					preset <= 1'b0;
+					en <= 1'b1;
+				end
+			r1:
+
+				if(carry) begin
+					en <= 1'b0;
+					state <= Idle;
+				end
+				else begin 
+					read <= 1'b1;
+					write <= 1'b0;
+					data <= 1'b1;
+					up_down <= 1'b1;
+					reset <= 1'b0;
+					preset <= 1'b0;
+					done <= 1'b0;
+					en <= 1'b1;
+				end
+			default: begin 
+				state <= Idle;
+				read <= 1'b0;
+				write <= 1'b0;
+				up_down <= 1'b1;
+				data <= 1'b0;
+				done <= 1'b0;
+				en <= 1'b0;
+				reset <= 1'b0;
+				preset <= 1'b0;
+
+			end
+		endcase
 	end
-end
-
-always @(*) begin 
-	case (state) 
-		Idle: 
-			if(start == 1'b1) begin 
-				next_state = w0;
-				en = 1'b0;
-				reset = 1'b1;
-			end
-			else begin 
-				state = Idle;
-				read = 1'b0;
-				write = 1'b0;
-				up_down = 1'b1;
-				data = 1'b0;
-				done = 1'b1;
-				en = 1'b0;
-				reset = 1'b0;
-				preset = 1'b0;
-			end
-		w0:
-			if(carry_r) begin 
-				next_state = r0;
-				en = 1'b0;
-				preset = 1'b1;
-			end
-			else begin 
-				state = w0;
-				read  = 1'b0;
-				write = 1'b1;
-				up_down = 1'b1;
-				data = 1'b0;
-				done = 1'b0;
-				en = 1'b1;
-				reset = 1'b0;
-				preset = 1'b0;
-			end
-		r0:
-			if(carry_r) begin
-				next_state = w1;
-				en = 1'b0;
-				reset = 1'b1;
-			end
-			else begin 
-				state = r0;
-				read = 1'b1;
-				write = 1'b0;
-				up_down = 1'b0;
-				data = 1'b0;
-				done = 1'b0;
-				en = 1'b1;
-				reset = 1'b0;
-				preset = 1'b0;
-			end
-		w1: 
-			
-			if(carry_r) begin 
-				next_state = r1;
-				en = 1'b0;
-				reset = 1'b1;
-			end
-			else begin 
-				state = w1;
-				read = 1'b0;
-				write = 1'b1;
-				up_down = 1'b1;
-				data = 1'b1;
-				done = 1'b0;
-				en = 1'b1;
-				reset = 1'b0;
-				preset = 1'b0;
-			end
-		r1:
-
-			if(carry_r) begin
-				next_state = Idle;
-				en = 1'b0;
-				reset = 1'b1;
-			end
-			else begin 
-				state = r1;
-				read = 1'b1;
-				write = 1'b0;
-				up_down = 1'b1;
-				data = 1'b1;
-				done = 1'b0;
-				en = 1'b1;
-				reset = 1'b0;
-				preset = 1'b0;
-			end
-		default: begin 
-			state = Idle;
-			read = 1'b0;
-			write = 1'b0;
-			up_down = 1'b1;
-			data = 1'b0;
-			done = 1'b0;
-			en = 1'b0;
-			reset = 1'b0;
-			preset = 1'b0;
-		end
-	endcase
 end
 
 always @(posedge clk or posedge rst)  
