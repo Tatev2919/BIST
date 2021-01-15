@@ -7,7 +7,7 @@ module comparator
 );
 
 always @(*) begin 
-	if(data_gen == data_mem)  begin 
+	if(data_gen === data_mem)  begin 
 		is_equal = 1'b1;
 	end
 	else begin 
